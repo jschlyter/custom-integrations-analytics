@@ -26,12 +26,12 @@ def make_pretty(styler: Styler) -> Styler:
     return styler
 
 
-def read_dataset():
-    if ANALYTICS_FILE.exists():
-        with open(ANALYTICS_FILE) as fp:
+def read_dataset(filename: Path, url: str):
+    if filename.exists():
+        with open(filename) as fp:
             dataset = json.load(fp)
     else:
-        dataset = httpx.get(ANALYTICS_URL).json()
+        dataset = httpx.get(url).json()
 
     return dataset
 
@@ -40,11 +40,12 @@ def main():
     """Main function"""
 
     parser = argparse.ArgumentParser()
+    parser.add_argument("--input", type=str, help="Input file", default=ANALYTICS_FILE)
     parser.add_argument("--output", type=str, help="Output file", default=REPORT_FILE)
 
     args = parser.parse_args()
 
-    dataset = read_dataset()
+    dataset = read_dataset(filename=Path(args.input), url=ANALYTICS_URL)
     usage = [(name, data["total"]) for name, data in dataset.items()]
 
     df = pd.DataFrame(
