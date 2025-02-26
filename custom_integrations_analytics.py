@@ -31,8 +31,6 @@ def read_dataset():
             dataset = json.load(fp)
     else:
         dataset = httpx.get(ANALYTICS_URL).json()
-        with open(ANALYTICS_FILE, "w") as fp:
-            json.dump(dataset, fp)
 
     return dataset
 
