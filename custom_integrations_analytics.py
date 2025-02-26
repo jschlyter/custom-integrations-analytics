@@ -2,6 +2,7 @@
 
 import argparse
 import json
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
@@ -74,7 +75,11 @@ def main() -> None:
 
     with open(args.output, "w") as fp:
         table_html = df.style.to_html()
-        fp.write(template.render(title=TITLE, table=table_html))
+        fp.write(
+            template.render(
+                title=TITLE, table=table_html, now=datetime.now(tz=timezone.utc)
+            )
+        )
 
     print(f"Result written to {args.output}")
 
