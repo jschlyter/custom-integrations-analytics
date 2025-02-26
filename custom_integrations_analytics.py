@@ -1,5 +1,6 @@
 """Custom Integrations Analytics"""
 
+import argparse
 import json
 from pathlib import Path
 
@@ -36,6 +37,13 @@ def read_dataset():
 
 
 def main():
+    """Main function"""
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--output", type=str, help="Output file", default=REPORT_FILE)
+
+    args = parser.parse_args()
+
     dataset = read_dataset()
     usage = [(name, data["total"]) for name, data in dataset.items()]
 
@@ -44,11 +52,11 @@ def main():
         columns=["Integration", "Count"],
     )
 
-    with open(REPORT_FILE, "w") as fp:
+    with open(args.output, "w") as fp:
         html = df.style.pipe(make_pretty).to_html()
         fp.write(CSS + html)
 
-    print(f"Result written to {REPORT_FILE}")
+    print(f"Result written to {args.output}")
 
 
 if __name__ == "__main__":
