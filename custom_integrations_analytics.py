@@ -6,24 +6,29 @@ from pathlib import Path
 
 import httpx
 import pandas as pd
-from pandas.io.formats.style import Styler
 
 ANALYTICS_URL = "https://analytics.home-assistant.io/custom_integrations.json"
 ANALYTICS_FILE = Path("custom_integrations.json")
 
 REPORT_FILE = Path("custom_integrations.html")
 
-CSS = """
-<style>
-    thead { background-color: grey; }
-    tbody tr:nth-child(even) { background-color: lightgrey; }
+TITLE = "Home Assistant Custom Integrations"
+
+PROLOGUE = f"""
+<head>
+<title>{TITLE}</title>
+<style type="text/css">
+    thead {{ background-color: grey; }}
+    tbody tr:nth-child(even) {{ background-color: lightgrey; }}
 </style>
+</head>
+<body>
+<h1>{TITLE}</h1>
 """
 
-
-def make_pretty(styler: Styler) -> Styler:
-    styler.set_caption("Custom Integrations Analytics")
-    return styler
+EPILOGUE = """
+</body>
+"""
 
 
 def read_dataset(filename: Path, url: str):
@@ -54,8 +59,8 @@ def main():
     )
 
     with open(args.output, "w") as fp:
-        html = df.style.pipe(make_pretty).to_html()
-        fp.write(CSS + html)
+        table_html = df.style.to_html()
+        fp.write(PROLOGUE + table_html + EPILOGUE)
 
     print(f"Result written to {args.output}")
 
