@@ -3,54 +3,63 @@
 import argparse
 import json
 from pathlib import Path
+from typing import Any
 
 import httpx
+import jinja2
 import pandas as pd
 
 ANALYTICS_URL = "https://analytics.home-assistant.io/custom_integrations.json"
 ANALYTICS_FILE = Path("custom_integrations.json")
 
+TEMPLATE_FILE = Path("custom_integrations_analytics.html.j2")
 REPORT_FILE = Path("custom_integrations.html")
 
 TITLE = "Home Assistant Custom Integrations"
 
-PROLOGUE = f"""
-<head>
-<title>{TITLE}</title>
-<style type="text/css">
-    thead {{ background-color: grey; }}
-    tbody tr:nth-child(even) {{ background-color: lightgrey; }}
-</style>
-</head>
-<body>
-<h1>{TITLE}</h1>
-"""
 
-EPILOGUE = """
-</body>
-"""
+def read_dataset(filename: Path, url: str) -> dict[str, Any]:
+    """Read dataset from file or URL"""
 
-
-def read_dataset(filename: Path, url: str):
     if filename.exists():
         with open(filename) as fp:
-            dataset = json.load(fp)
+            return json.load(fp)
     else:
-        dataset = httpx.get(url).json()
-
-    return dataset
+        return httpx.get(url).json()
 
 
-def main():
+def main() -> None:
     """Main function"""
 
     parser = argparse.ArgumentParser()
-    parser.add_argument("--input", type=str, help="Input file", default=ANALYTICS_FILE)
-    parser.add_argument("--output", type=str, help="Output file", default=REPORT_FILE)
+    parser.add_argument(
+        "--url",
+        type=str,
+        help="Input URL",
+        default=ANALYTICS_URL,
+    )
+    parser.add_argument(
+        "--input",
+        type=Path,
+        help="Input file",
+        default=ANALYTICS_FILE,
+    )
+    parser.add_argument(
+        "--output",
+        type=Path,
+        help="Output file",
+        default=REPORT_FILE,
+    )
+    parser.add_argument(
+        "--template",
+        type=Path,
+        help="Template file",
+        default=TEMPLATE_FILE,
+    )
 
     args = parser.parse_args()
 
-    dataset = read_dataset(filename=Path(args.input), url=ANALYTICS_URL)
+    dataset = read_dataset(filename=Path(args.input), url=args.url)
     usage = [(name, data["total"]) for name, data in dataset.items()]
 
     df = pd.DataFrame(
@@ -58,9 +67,14 @@ def main():
         columns=["Integration", "Count"],
     )
 
+    env = jinja2.Environment(
+        loader=jinja2.FileSystemLoader("."), autoescape=jinja2.select_autoescape()
+    )
+    template = env.get_template(str(args.template))
+
     with open(args.output, "w") as fp:
         table_html = df.style.to_html()
-        fp.write(PROLOGUE + table_html + EPILOGUE)
+        fp.write(template.render(title=TITLE, table=table_html))
 
     print(f"Result written to {args.output}")
 
