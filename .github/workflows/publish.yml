@@ -45,8 +45,7 @@ jobs:
       - name: Create output directory
         run: mkdir output
       - name: Generate report
-        working-directory: output
-        run: poetry run python3 ../custom_integrations_analytics.py --output index.html
+        run: poetry run python3 custom_integrations_analytics.py --output output/index.html
       - name: Setup Pages
         uses: actions/configure-pages@v5
       - name: Upload artifact
