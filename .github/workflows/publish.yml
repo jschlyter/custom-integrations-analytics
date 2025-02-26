@@ -40,16 +40,16 @@ jobs:
       - name: Install dependencies
         run: poetry install
       - name: Create output directory
-        run: mkdir /tmp/report
+        run: mkdir ${GITHUB_WORKSPACE}/output
       - name: Generate report
-        working-directory: /tmp/report
+        working-directory: ${GITHUB_WORKSPACE}/output
         run: poetry run python3 ${GITHUB_WORKSPACE}/custom_integrations_analytics.py
       - name: Setup Pages
         uses: actions/configure-pages@v5
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: /tmp/report
+          path: ${GITHUB_WORKSPACE}/output
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
