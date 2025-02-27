@@ -19,6 +19,9 @@ REPORT_FILE = Path("custom_integrations.html")
 
 TITLE = "Home Assistant Custom Integrations"
 
+REPOSITORY_NAME = "jschlyter/custom_integration_analytics"
+REPOSITORY_URL = "https://github.com/jschlyter/custom_integration_analytics"
+
 
 def read_dataset(filename: Path, url: str) -> dict[str, Any]:
     """Read dataset from file or URL"""
@@ -85,7 +88,11 @@ def main() -> None:
 
         fp.write(
             template.render(
-                title=TITLE, table=table_html, now=datetime.now(tz=timezone.utc)
+                title=TITLE,
+                table=table_html,
+                now=datetime.now(tz=timezone.utc),
+                repository_url=REPOSITORY_URL,
+                repository_name=REPOSITORY_NAME,
             )
         )
 
