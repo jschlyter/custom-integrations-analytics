@@ -9,6 +9,7 @@ from typing import Any
 import httpx
 import jinja2
 import pandas as pd
+from pandas.io.formats.style import Styler
 
 ANALYTICS_URL = "https://analytics.home-assistant.io/custom_integrations.json"
 ANALYTICS_FILE = Path("custom_integrations.json")
@@ -27,6 +28,13 @@ def read_dataset(filename: Path, url: str) -> dict[str, Any]:
             return json.load(fp)
     else:
         return httpx.get(url).json()
+
+
+def make_pretty(styler: Styler) -> Styler:
+    styler.format(thousands=",")
+    styler.set_uuid("integrations")
+    styler.set_table_attributes('class="display"')
+    return styler
 
 
 def main() -> None:
@@ -72,9 +80,9 @@ def main() -> None:
         loader=jinja2.FileSystemLoader("."), autoescape=jinja2.select_autoescape()
     )
     template = env.get_template(str(args.template))
-
     with open(args.output, "w") as fp:
-        table_html = df.style.to_html()
+        table_html = df.style.pipe(make_pretty).to_html()
+
         fp.write(
             template.render(
                 title=TITLE, table=table_html, now=datetime.now(tz=timezone.utc)

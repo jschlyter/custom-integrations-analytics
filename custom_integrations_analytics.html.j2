@@ -1,15 +1,34 @@
 <head>
-<title>{{ title }}</title>
+  <title>{{ title }}</title>
 
-<style type="text/css">
-    thead { background-color: grey; }
-    tbody tr:nth-child(even) { background-color: lightgrey; }
-</style>
+  <!-- https://datatables.net/ -->
+  <link rel="stylesheet" href="https://cdn.datatables.net/2.2.2/css/dataTables.dataTables.css" />
+  <script src="https://code.jquery.com/jquery-3.7.1.js"></script>
+  <script src="https://cdn.datatables.net/2.2.2/js/dataTables.js"></script>
+
+  <script>
+  $(document).ready(function() {
+    var reportTable = $('#T_integrations').DataTable({"pageLength": 25});
+  });
+  </script>
+
+   <style type="text/css">
+    body {
+      font-family: "Segoe UI", Roboto, sans-serif;
+    }
+    p.last_updated {
+      font-size: 8pt;
+    }
+    div.dt-container {
+      margin: 0 auto;
+      width: 80%;
+    }
+  </style>
 </head>
 
 <body>
 <h1>{{ title }}</h1>
-<p>Last updated {{ now.strftime("%Y-%m-%d %H:%M:%S UTC") }}</p>
+<p class="last_updated">Last updated {{ now.strftime("%Y-%m-%d %H:%M:%S UTC") }}</p>
 
 {{ table }}
 
