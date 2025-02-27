@@ -19,8 +19,8 @@ REPORT_FILE = Path("custom_integrations.html")
 
 TITLE = "Home Assistant Custom Integrations"
 
-REPOSITORY_NAME = "jschlyter/custom_integration_analytics"
-REPOSITORY_URL = "https://github.com/jschlyter/custom_integration_analytics"
+REPOSITORY_NAME = "jschlyter/custom-integrations-analytics"
+REPOSITORY_URL = "https://github.com/jschlyter/custom-integrations-analytics"
 
 
 def read_dataset(filename: Path, url: str) -> dict[str, Any]:
