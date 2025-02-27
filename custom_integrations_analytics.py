@@ -103,12 +103,10 @@ def main() -> None:
     usage = []
     for integration, data in dataset.items():
         if hacs_data := hacs.get(integration):
-            name = f'<a href="{hacs_data.href}">{integration}</a>'
-            description = hacs_data.manifest_name
+            description = f'<a href="{hacs_data.href}">{hacs_data.manifest_name}</a>'
         else:
-            name = integration
             description = ""
-        usage.append([name, description, data["total"]])
+        usage.append([integration, description, data["total"]])
 
     df = pd.DataFrame(
         sorted(usage, key=lambda v: v[2], reverse=True),
