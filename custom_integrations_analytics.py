@@ -8,7 +8,7 @@ from pathlib import Path
 from typing import Any
 from urllib.parse import urljoin
 
-import httpx
+import httpx2
 import jinja2
 import pandas as pd
 from pandas.io.formats.style import Styler
@@ -24,12 +24,12 @@ TITLE = "Home Assistant Custom Integrations"
 REPOSITORY_NAME = "jschlyter/custom-integrations-analytics"
 REPOSITORY_URL = "https://github.com/jschlyter/custom-integrations-analytics"
 
-HACS_DATA_URL = "https://data-v2.hacs.xyz/integration/data.json"
-HACS_DATA_FILE = "hacs_data.json"
+MARKETPLACE_DATA_URL = "https://data-v2.hacs.xyz/integration/data.json"
+MARKETPLACE_DATA_FILE = "marketplace_data.json"
 
 
 @dataclass(frozen=True)
-class HacsIntegration:
+class MarketplaceIntegration:
     domain: str
     manifest_name: str
     full_name: str
@@ -46,7 +46,7 @@ def read_dataset(filename: Path, url: str) -> dict[str, Any]:
         with open(filename) as fp:
             return json.load(fp)
     else:
-        return httpx.get(url).json()
+        return httpx2.get(url).json()
 
 
 def make_pretty(styler: Styler) -> Styler:
@@ -89,24 +89,24 @@ def main() -> None:
 
     dataset = read_dataset(filename=Path(args.input), url=args.url)
 
-    # Read integration data from HACS
-    hacs: dict[str, HacsIntegration] = {}
-    hacs_dataset = read_dataset(filename=Path(HACS_DATA_FILE), url=HACS_DATA_URL)
-    for hacs_data in hacs_dataset.values():
-        i = HacsIntegration(
-            domain=hacs_data["domain"],
-            manifest_name=hacs_data["manifest_name"],
-            full_name=hacs_data["full_name"],
+    # Read integration data from Home Assistant Marketplace
+    integrations: dict[str, MarketplaceIntegration] = {}
+    marketplace_dataset = read_dataset(filename=Path(MARKETPLACE_DATA_FILE), url=MARKETPLACE_DATA_URL)
+    for data in marketplace_dataset.values():
+        i = MarketplaceIntegration(
+            domain=data["domain"],
+            manifest_name=data["manifest_name"],
+            full_name=data["full_name"],
         )
-        hacs[i.domain] = i
+        integrations[i.domain] = i
 
     usage = []
-    for integration, data in dataset.items():
-        if hacs_data := hacs.get(integration):
-            description = f'<a href="{hacs_data.href}">{hacs_data.manifest_name}</a>'
+    for name, data in dataset.items():
+        if integration := integrations.get(name):
+            description = f'<a href="{integration.href}">{integration.manifest_name}</a>'
         else:
             description = ""
-        usage.append([integration, description, data["total"]])
+        usage.append([name, description, data.get("total")])
 
     df = pd.DataFrame(
         sorted(usage, key=lambda v: v[2], reverse=True),
